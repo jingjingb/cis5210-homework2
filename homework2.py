@@ -65,13 +65,13 @@ class LightsOutPuzzle(object):
         return self.board
 
     def perform_move(self, row, col):
-        self.board[row][col] = not self.board[row][col] 
+        self.board[row][col] = not self.board[row][col]
         # perform the four neighbors
-        for delta_row, delta_col in [(1,0),(-1,0),(0,1),(0,-1)]:
+        for delta_row, delta_col in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             # check boundary conditions
-            if row + delta_row >=0 and row + delta_row <len(self.board):
-                if col + delta_col >=0 and col+delta_col<len(self.board[0]):
-                    self.board[row + delta_row][col + delta_col] = not self.board[row + delta_row][col + delta_col] 
+            if row + delta_row >= 0 and row + delta_row < len(self.board):
+                if col + delta_col >= 0 and col + delta_col < len(self.board[0]):
+                    self.board[row + delta_row][col + delta_col] = not self.board[row + delta_row][col + delta_col]
 
     def scramble(self):
         import random
@@ -95,13 +95,13 @@ class LightsOutPuzzle(object):
         for row in range(len(self.board)):
             for col in range(len(self.board[0])):
                 successor = self.copy()
-                successor.perform_move(row,col)
-                yield ((row,col),successor)
+                successor.perform_move(row, col)
+                yield ((row, col), successor)
 
     def find_solution(self):
-        q = [([],self)]
+        q = [([], self)]
         visited_set = [tuple(tuple(x) for x in self.get_board())]
-        while(q):
+        while (q):
             moves, curr = q.pop(0)
             for move, next in curr.successors():
                 # visit next
@@ -112,6 +112,7 @@ class LightsOutPuzzle(object):
                         visited_set.append(tuple(tuple(x) for x in next.get_board()))
                         q.append((list(moves + [move]), next))
         return None
+
 
 def create_puzzle(rows, cols):
     return LightsOutPuzzle([[False for _ in range(cols)] for _ in range(rows)])
@@ -131,7 +132,7 @@ class DiskMovement(object):
         disk_to_move = tmp[from_]
         tmp[from_] = 0
         tmp[to_] = disk_to_move
-        return DiskMovement(tmp,self.length,self.n)
+        return DiskMovement(tmp, self.length, self.n)
 
     def successors(self):
         i = 0
@@ -139,17 +140,17 @@ class DiskMovement(object):
         while i < len(self.disks):
             if li[i] != 0:
                 if i + 1 < self.length:
-                    if li[i+1] == 0:
-                        yield((i, i+1), self.move(i, i+1))
+                    if li[i + 1] == 0:
+                        yield((i, i + 1), self.move(i, i + 1))
                 if i + 2 < self.length:
-                    if li[i+2] == 0 and li[i+1] !=0:
-                        yield((i, i+2), self.move(i, i+2))
-                if i-1 >= 0:
-                    if li[i-1] == 0:
-                        yield((i, i-1), self.move(i, i-1))
+                    if li[i + 2] == 0 and li[i + 1] !=0:
+                        yield((i, i + 2), self.move(i, i + 2))
+                if i - 1 >= 0:
+                    if li[i - 1] == 0:
+                        yield((i, i - 1), self.move(i, i - 1))
                 if i - 2 >= 0:
-                    if li[i-2] == 0 and li[i-1] !=0:
-                        yield((i, i-2), self.move(i, i-2))
+                    if li[i - 2] == 0 and li[i - 1] !=0:
+                        yield((i, i - 2), self.move(i, i - 2))
             i += 1
 
 def is_solved(dm):
