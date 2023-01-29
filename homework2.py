@@ -147,18 +147,19 @@ class DiskMovement(object):
             if li[i] != 0:
                 if i + 1 < self.length:
                     if li[i + 1] == 0:
-                        yield((i, i + 1), self.move(i, i + 1))
+                        yield ((i, i + 1), self.move(i, i + 1))
                 if i + 2 < self.length:
                     if li[i + 2] == 0 and li[i + 1] !=0:
-                        yield((i, i + 2), self.move(i, i + 2))
+                        yield ((i, i + 2), self.move(i, i + 2))
                 if i - 1 >= 0:
                     if li[i - 1] == 0:
-                        yield((i, i - 1), self.move(i, i - 1))
+                        yield ((i, i - 1), self.move(i, i - 1))
                 if i - 2 >= 0:
                     if li[i - 2] == 0 and li[i - 1] !=0:
-                        yield((i, i - 2), self.move(i, i - 2))
+                        yield ((i, i - 2), self.move(i, i - 2))
             i += 1
 
+            
 def is_solved(dm):
     i = dm.length - 1
     while i >= dm.length - dm.n:
@@ -166,6 +167,7 @@ def is_solved(dm):
             return False
         i -= 1
     return True
+
 
 def solve_identical_disks(length, n):
     initial_disks = [1 for i in range(n)]
