@@ -1,5 +1,8 @@
 # Include your imports here, if any are used.
 
+import math
+import copy
+
 ############################################################
 # CIS 521: Homework 2
 ############################################################
@@ -12,19 +15,50 @@ student_name = "Jingjing Bai"
 ############################################################
 
 def num_placements_all(n):
-    pass
-
+    return math.factorial(n*n)/math.factorial(n)/math.factorial(n*n-n)
 
 def num_placements_one_per_row(n):
-    pass
-
+    return math.factorial(n)
 
 def n_queens_valid(board):
-    pass
+    #check same column.
+    if len(set(board)) < len(board):
+        return False
+    # check if same row, impossible.
+    # check if diag.
+    cache = {}
+    for row in range(len(board)):
+        col = board[row]
+        #print("cache is ",cache)
+        #print("curr row is ", row)
+        #print("curr col is ", col)
+        # check if conflicts with existing queens.
+        for row_, col_ in cache.items():
+            if abs(row - row_) == abs(col - col_):
+                return False        
+        cache[row] = col
+    return True
 
+#print(n_queens_valid([1]))
 
 def n_queens_solutions(n):
-    pass
+    solutions = []
+    def DFS(path, solutions):
+        #print("existing path: ", path)
+        for i in range(n):
+            if i not in path and n_queens_valid(list(path+[i])):
+                #print("next step is: ",i)
+                if len(path) == n-1:
+                    solutions.append(list(path + [i]))
+                    #print("solution: ",list(path + [i]))
+                else:
+                    DFS(path+[i], solutions)
+    DFS([], solutions)
+    return solutions
+#print(len(n_queens_solutions(8)))
+        
+
+
 
 
 ############################################################
@@ -34,64 +68,219 @@ def n_queens_solutions(n):
 class LightsOutPuzzle(object):
 
     def __init__(self, board):
-        pass
+        self.board = board
 
     def get_board(self):
-        pass
+        return self.board
 
     def perform_move(self, row, col):
-        pass
+        #print(self.board)
+        self.board[row][col] = not self.board[row][col] 
+        # perform the four neighbors
+        for delta_row, delta_col in [(1,0),(-1,0),(0,1),(0,-1)]:
+            # check boundary conditions
+            if row + delta_row >=0 and row + delta_row <len(self.board):
+                if col + delta_col >=0 and col+delta_col<len(self.board[0]):
+                    self.board[row + delta_row][col + delta_col] = not self.board[row + delta_row][col + delta_col] 
 
     def scramble(self):
-        pass
+        import random
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                if random.random() < 0.5:
+                    self.perform_move(row, col)
 
     def is_solved(self):
-        pass
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                if self.board[row][col]:
+                    return False
+        return True
 
     def copy(self):
-        pass
+        return copy.deepcopy(self)#LightsOutPuzzle([[self.board[row][col] for col in range(len(self.board[0]))] for row in range(len(self.board))])
 
     def successors(self):
-        pass
+        successors = {}
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                successor = self.copy()
+                #print("row", row, "col", col)
+                #print("successor before move:", successor.get_board())
+                successor.perform_move(row,col)
+                #print("successor after move:", successor.get_board())
+                yield ((row,col),successor)
 
     def find_solution(self):
-        pass
-
+        #print("find sol", self.get_board())
+        q = [([],self)]
+        visited_set = [tuple(tuple(x) for x in self.get_board())]
+        while(q):
+            moves, curr = q.pop(0)
+            #print("moves:", moves)
+            #print("curr:", curr.get_board())
+            for move, next in curr.successors():
+                # visit next
+                if tuple(tuple(x) for x in next.get_board()) not in visited_set:
+                    #print("next move:", move)
+                    #print("next successor:", next.get_board())
+                    if next.is_solved():
+                        #print("solved:", moves + [move])
+                        return list(moves + [move])
+                    else:
+                        visited_set.append(tuple(tuple(x) for x in next.get_board()))
+                        #print("add next successor to q:", next.get_board())
+                        q.append((list(moves + [move]), next))
+                        #print("q is" ,q)
+        return None
 
 def create_puzzle(rows, cols):
-    pass
-
+    return LightsOutPuzzle([[False for _ in range(cols)] for _ in range(rows)])
 
 ############################################################
 # Section 3: Linear Disk Movement
 ############################################################
 
-def solve_identical_disks(length, n):
-    pass
+class DiskMovement(object):
+    def __init__(self, disks, length, n):
+        self.disks = list(disks)
+        self.length = length
+        self.n = n
 
+    def move(self, from_, to_):
+        tmp = list(self.disks)
+        disk_to_move = tmp[from_]
+        tmp[from_] = 0
+        tmp[to_] = disk_to_move
+        return DiskMovement(tmp,self.length,self.n)
+
+    def successors(self):
+        i = 0
+        li = self.disks
+        while i < len(self.disks):
+            if li[i] != 0:
+                if i + 1 < self.length:
+                    if li[i+1] == 0:
+                        yield((i, i+1), self.move(i, i+1))
+                if i + 2 < self.length:
+                    if li[i+2] == 0 and li[i+1] !=0:
+                        yield((i, i+2), self.move(i, i+2))
+                if i-1 >= 0:
+                    if li[i-1] == 0:
+                        yield((i, i-1), self.move(i, i-1))
+                if i - 2 >= 0:
+                    if li[i-2] == 0 and li[i-1] !=0:
+                        yield((i, i-2), self.move(i, i-2))
+            i += 1
+
+def is_solved(dm):
+    i = dm.length - 1
+    while i >= dm.length - dm.n:
+        if dm.disks[i] != 1:
+            return False
+        i -= 1
+    return True
+
+def solve_identical_disks(length, n):
+    initial_disks = [1 for i in range(n)]
+    for i in range(length - n):
+        initial_disks.append(0)
+    dm = DiskMovement(initial_disks, length, n)
+    moves = {}
+    parent = {}
+    explored_set = set()
+    solution = []
+    parent[dm] = dm
+    moves[dm] = ()
+    q = []
+    q.append(dm)
+    explored_set.add(tuple(dm.disks))
+    if is_solved(dm):
+        return moves[dm]
+    while len(q)!= 0:
+        diskInstance = q.pop(0)
+        if is_solved(diskInstance):
+            node = diskInstance
+            while(parent[node] != node):
+                solution.append(moves[node])
+                node = parent[node]
+            return list(reversed(solution))
+        for move, neighbor in diskInstance.successors():
+            if tuple(neighbor.disks) not in explored_set:
+                parent[neighbor] = diskInstance
+                moves[neighbor] = move
+                if is_solved(neighbor) is True:
+                    node = neighbor
+                    while(parent[node] != node):
+                        solution.append(moves[node])
+                        node = parent[node]
+                    return list(reversed(solution))
+                explored_set.add(tuple(neighbor.disks))
+                q.append(neighbor)
+    return None
+
+def is_solved2(dm):
+        i = len(dm.disks) - 1
+        diskId = 1
+        while diskId <= dm.n:
+            if dm.disks[i] != diskId:
+                return False
+            i -= 1
+            diskId += 1
+        return True
 
 def solve_distinct_disks(length, n):
-    pass
-
+    initial_disks = [1 for i in range(n)]
+    for i in range(length - n):
+        initial_disks.append(0)
+    dm = DiskMovement(initial_disks, length, n)
+    moves = {}
+    parent = {}
+    explored_set = set()
+    solution = []
+    parent[dm] = dm
+    moves[dm] = ()
+    q = []
+    q.append(dm)
+    explored_set.add(tuple(dm.disks))
+    if is_solved2(dm):
+        return moves[dm]
+    while len(q)!= 0:
+        diskInstance = q.pop(0)
+        if is_solved(diskInstance):
+            node = diskInstance
+            while(parent[node] != node):
+                solution.append(moves[node])
+                node = parent[node]
+            return list(reversed(solution))
+        for move, neighbor in diskInstance.successors():
+            if tuple(neighbor.disks) not in explored_set:
+                parent[neighbor] = diskInstance
+                moves[neighbor] = move
+                if is_solved(neighbor) is True:
+                    node = neighbor
+                    while(parent[node] != node):
+                        solution.append(moves[node])
+                        node = parent[node]
+                    return list(reversed(solution))
+                explored_set.add(tuple(neighbor.disks))
+                q.append(neighbor)
+    return None
+#print(solve_identical_disks(5, 3))
+#print(solve_distinct_disks(5, 2))
 
 ############################################################
 # Section 4: Feedback
 ############################################################
 
 feedback_question_1 = """
-Type your response here.
-Your response may span multiple lines.
-Do not include these instructions in your response.
+1day
 """
 
 feedback_question_2 = """
-Type your response here.
-Your response may span multiple lines.
-Do not include these instructions in your response.
+Question 3
 """
 
 feedback_question_3 = """
-Type your response here.
-Your response may span multiple lines.
-Do not include these instructions in your response.
+order of questions, after Q2, Q3 has clues to find solutions
 """
