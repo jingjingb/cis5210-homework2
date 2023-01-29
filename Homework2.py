@@ -1,343 +1,286 @@
-import tkinter as tk
-from functools import partial
-from tkinter import simpledialog, messagebox
+# Include your imports here, if any are used.
 
-from homework2 import *
+import math
+import copy
 
-QUEEN_IMAGE = 'R0lGODlhPAA8AKIHANDQ0Ojo6KioqDg4OHV1dfj4+P///wAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkP' \
-              'SJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQW' \
-              'RvYmUgWE1QIENvcmUgNi4wLWMwMDIgNzkuMTY0NDYwLCAyMDIwLzA1LzEyLTE2OjA0OjE3ICAgICAgICAiPiA8cmRmOlJERiB4bWx' \
-              'uczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjph' \
-              'Ym91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvY' \
-              'mUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUm' \
-              'VmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5' \
-              'paWQ6MjZCQzVEOTdCNTk5MTFFQUI2NjQ4RjZFMkJGNkREQkEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MjZCQzVEOThCNTk5' \
-              'MTFFQUI2NjQ4RjZFMkJGNkREQkEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDoyNkJDNUQ5N' \
-              'UI1OTkxMUVBQjY2NDhGNkUyQkY2RERCQSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDoyNkJDNUQ5NkI1OTkxMUVBQjY2NDhGNk' \
-              'UyQkY2RERCQSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PgH' \
-              '//v38+/r5+Pf29fTz8vHw7+7t7Ovq6ejn5uXk4+Lh4N/e3dzb2tnY19bV1NPS0dDPzs3My8rJyMfGxcTDwsHAv769vLu6ubi3trW0' \
-              's7KxsK+urayrqqmop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+fXx7enl4d3Z1dHNycXBvbm1sa2ppa' \
-              'GdmZWRjYmFgX15dXFtaWVhXVlVUU1JRUE9OTUxLSklIR0ZFRENCQUA/Pj08Ozo5ODc2NTQzMjEwLy4tLCsqKSgnJiUkIyIhIB8eHR' \
-              'wbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEAACH5BAEAAAcALAAAAAA8ADwAAAP/eLrc/jDKSau9OOvNu/9gKI7MYE4nWZlEmzY' \
-              's8arPQABGLsyHHeSBHa1GyBkKukGpmEMaZEMYrkClBqCKwa+aAyijC+2RaggEv7Ym2YwFi9eAc5YJv37dgnE53h5M9wFeYGFiR4Ft' \
-              'PQQ/BnF2g4QCW0IwTEGIISY8PX5dd2F5ZZqZmigDAgAClz04R5eFjiWmqKoRJos5rreTc0dliDZOuJ4SnFywWVuMnqa9Bb9ba6SUa' \
-              'oa7PclPdwNITn1FVd3DRNRm1tt6k2lk2Z9jZM7iNdBlxwcE3EgBaFNkiPe99Gg5SNPMizY64XrgQ/ILVIEABayhEMCt1UE1SAx+47' \
-              'LL/8cRAKikQTCRJ2EijEdM8COT7t/DHSJrvRGmYCMXGRiRCAEGpF4GZutkqANnIJU7lpmgBYp3gWDQoeAeHs1oqxcbpk1X5oDKZar' \
-              'OYh8BCGxqM1/JqGjJgNQTRyKHN13TynVSZywGoHPzRv0oB9M5vYDz8cGqAW9guYAEjXB6GG3YvotXNn4HcrAKro3DtiXcAW7mApUt' \
-              '0zAcWHMcxaMR6gUSWvSQYuuMyGbd2qAbJkasmNndendRziBMtRA6qnjx4cA7jxouoLnz586RZxpt41Sw2dizB4JJgll2r3uz28ake' \
-              'jJi1B9gm59LMzi09eztNl0IPy07ELi/69+fJISihyK7BSjggATuBo9fxiWo4IJCIbjggxAm98iEFFZo4YUYDpIAADs='
+############################################################
+# CIS 521: Homework 2
+############################################################
+
+student_name = "Jingjing Bai"
 
 
-class NQueens(tk.Frame):
-    def __init__(self, parent, n):
-        super().__init__(parent)
-        self.__n = n
-        self.__canvas = tk.Canvas(self)
-        self.__buttons = tk.Frame(self)
+############################################################
+# Section 1: N-Queens
+############################################################
 
-        self.__queen_image = tk.PhotoImage(data=QUEEN_IMAGE)
-        self.__ppb = self.__queen_image.width()
-        self.__canvas.config(width=n * self.__ppb, height=n * self.__ppb)
-        self.__canvas.pack()
+def num_placements_all(n):
+    return math.factorial(n*n)/math.factorial(n)/math.factorial(n*n-n)
 
+def num_placements_one_per_row(n):
+    return math.factorial(n)
+
+def n_queens_valid(board):
+    #check same column.
+    if len(set(board)) < len(board):
+        return False
+    # check if same row, impossible.
+    # check if diag.
+    cache = {}
+    for row in range(len(board)):
+        col = board[row]
+        #print("cache is ",cache)
+        #print("curr row is ", row)
+        #print("curr col is ", col)
+        # check if conflicts with existing queens.
+        for row_, col_ in cache.items():
+            if abs(row - row_) == abs(col - col_):
+                return False        
+        cache[row] = col
+    return True
+
+#print(n_queens_valid([1]))
+
+def n_queens_solutions(n):
+    solutions = []
+    def DFS(path, solutions):
+        #print("existing path: ", path)
         for i in range(n):
-            for j in range(n):
-                self.__canvas.create_rectangle(
-                    i * self.__ppb, j * self.__ppb, (i + 1) * self.__ppb, (j + 1) * self.__ppb,
-                    fill='gray50' if (i & 1) ^ (j & 1) else 'white', outline='')
-
-        self.__solutions = n_queens_solutions(n)
-        self.__queens = []
-        self.__cur_sol = 0
-        self.__label = tk.StringVar()
-
-        self.__prev_btn = tk.Button(self.__buttons, text='Previous solution', command=partial(self.__display, -1))
-        self.__next_btn = tk.Button(self.__buttons, text='Next solution', command=partial(self.__display, 1))
-
-        self.__display(0)
-
-        self.__prev_btn.grid(row=0, column=0, padx=2, pady=2)
-        self.__next_btn.grid(row=0, column=1, padx=2, pady=2)
-        tk.Label(self.__buttons, textvariable=self.__label).grid(row=0, column=2, padx=2, pady=2)
-        self.__buttons.pack(side=tk.BOTTOM)
-
-        if not self.__solutions:
-            messagebox.showwarning('Warning', 'No solutions returned!')
-
-    def __display(self, delta):
-        while self.__queens:
-            self.__canvas.delete(self.__queens.pop())
-        self.__cur_sol += delta
-        if self.__cur_sol <= 0:
-            self.__prev_btn.config(state=tk.DISABLED)
-        else:
-            self.__prev_btn.config(state=tk.NORMAL)
-        if self.__cur_sol + 1 >= len(self.__solutions):
-            self.__next_btn.config(state=tk.DISABLED)
-            if delta == 0:
-                return
-        else:
-            self.__next_btn.config(state=tk.NORMAL)
-        self.__label.set('%d/%d' % (self.__cur_sol + 1, len(self.__solutions)))
-        for i, pos in enumerate(self.__solutions[self.__cur_sol]):
-            self.__queens.append(self.__canvas.create_image(
-                (i * self.__ppb, pos * self.__ppb), image=self.__queen_image, anchor=tk.NW))
+            if i not in path and n_queens_valid(list(path+[i])):
+                #print("next step is: ",i)
+                if len(path) == n-1:
+                    solutions.append(list(path + [i]))
+                    #print("solution: ",list(path + [i]))
+                else:
+                    DFS(path+[i], solutions)
+    DFS([], solutions)
+    return solutions
+#print(len(n_queens_solutions(8)))
+        
 
 
-class LightsOutDialog(simpledialog.Dialog):
-    def body(self, parent):
-        row_label = tk.Label(parent, text='# of Rows', justify=tk.LEFT)
-        row_label.grid(row=0, padx=5, sticky=tk.W)
-        self.__row_entry = tk.Entry(parent, name='row')
-        self.__row_entry.grid(row=1, padx=5, sticky=tk.EW)
-        self.__row_entry.insert(0, 3)
-
-        col_label = tk.Label(parent, text='# of Cols', justify=tk.LEFT)
-        col_label.grid(row=2, padx=5, sticky=tk.W)
-        self.__col_entry = tk.Entry(parent, name='col')
-        self.__col_entry.grid(row=3, padx=5, sticky=tk.EW)
-        self.__col_entry.insert(0, 3)
-
-        return self.__row_entry
-
-    def validate(self):
-        try:
-            n_rows = self.getint(self.__row_entry.get())
-            n_cols = self.getint(self.__col_entry.get())
-        except ValueError:
-            messagebox.showwarning('Illegal value', 'Not an integer.\nPlease try again', parent=self)
-            return 0
-        if n_rows <= 0 or n_cols <= 0:
-            messagebox.showwarning('Illegal value', 'Not a positive integer.\nPlease try again', parent=self)
-            return 0
-        self.result = (n_rows, n_cols)
-        return 1
 
 
-MOVE_DELAY = 500
-SQUARE_SIZE = 100
+############################################################
+# Section 2: Lights Out
+############################################################
 
+class LightsOutPuzzle(object):
 
-class LightsOut(tk.Frame):
-    def __init__(self, parent, rows, cols):
-        super().__init__(parent)
-        self.__puzzle = create_puzzle(rows, cols)
-        self.__rows = rows
-        self.__cols = cols
-        self.__canvas = tk.Canvas(self)
-        self.__buttons = tk.Frame(self)
-        self.__squares = {}
+    def __init__(self, board):
+        self.board = board
 
-        self.__canvas.config(width=cols * SQUARE_SIZE, height=rows * SQUARE_SIZE)
-        self.__canvas.pack()
-        self.__update()
+    def get_board(self):
+        return self.board
 
-        self.__canvas.bind('<Button-1>', self.__click)
-        self.__solving = False
-        self.__cur_sol = 0
+    def perform_move(self, row, col):
+        #print(self.board)
+        self.board[row][col] = not self.board[row][col] 
+        # perform the four neighbors
+        for delta_row, delta_col in [(1,0),(-1,0),(0,1),(0,-1)]:
+            # check boundary conditions
+            if row + delta_row >=0 and row + delta_row <len(self.board):
+                if col + delta_col >=0 and col+delta_col<len(self.board[0]):
+                    self.board[row + delta_row][col + delta_col] = not self.board[row + delta_row][col + delta_col] 
 
-        tk.Button(self.__buttons, text='Scramble', command=self.__scramble).grid(row=0, column=0, padx=2, pady=2)
-        tk.Button(self.__buttons, text='Solve', command=self.__solve).grid(row=0, column=1, padx=2, pady=2)
-        self.__buttons.pack(side=tk.BOTTOM)
+    def scramble(self):
+        import random
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                if random.random() < 0.5:
+                    self.perform_move(row, col)
 
-    def __solve_lock(self):
-        self.__solving = True
-        for child in self.__buttons.winfo_children():
-            child.config(state=tk.DISABLED)
+    def is_solved(self):
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                if self.board[row][col]:
+                    return False
+        return True
 
-    def __solve_finish(self):
-        self.__solving = False
-        for child in self.__buttons.winfo_children():
-            child.config(state=tk.NORMAL)
+    def copy(self):
+        return copy.deepcopy(self)#LightsOutPuzzle([[self.board[row][col] for col in range(len(self.board[0]))] for row in range(len(self.board))])
 
-    def __update(self):
-        self.__canvas.delete(tk.ALL)
-        board = self.__puzzle.get_board()
-        for j, rows in enumerate(board):
-            for i, ele in enumerate(rows):
-                self.__canvas.create_rectangle(
-                    i * SQUARE_SIZE, j * SQUARE_SIZE, (i + 1) * SQUARE_SIZE, (j + 1) * SQUARE_SIZE,
-                    fill='white' if ele else 'grey50')
+    def successors(self):
+        successors = {}
+        for row in range(len(self.board)):
+            for col in range(len(self.board[0])):
+                successor = self.copy()
+                #print("row", row, "col", col)
+                #print("successor before move:", successor.get_board())
+                successor.perform_move(row,col)
+                #print("successor after move:", successor.get_board())
+                yield ((row,col),successor)
 
-    def __click(self, event):
-        if not self.__solving:
-            col, row = event.x // SQUARE_SIZE, event.y // SQUARE_SIZE
-            self.__puzzle.perform_move(row, col)
-            self.__update()
+    def find_solution(self):
+        #print("find sol", self.get_board())
+        q = [([],self)]
+        visited_set = [tuple(tuple(x) for x in self.get_board())]
+        while(q):
+            moves, curr = q.pop(0)
+            #print("moves:", moves)
+            #print("curr:", curr.get_board())
+            for move, next in curr.successors():
+                # visit next
+                if tuple(tuple(x) for x in next.get_board()) not in visited_set:
+                    #print("next move:", move)
+                    #print("next successor:", next.get_board())
+                    if next.is_solved():
+                        #print("solved:", moves + [move])
+                        return list(moves + [move])
+                    else:
+                        visited_set.append(tuple(tuple(x) for x in next.get_board()))
+                        #print("add next successor to q:", next.get_board())
+                        q.append((list(moves + [move]), next))
+                        #print("q is" ,q)
+        return None
 
-    def __scramble(self):
-        self.__puzzle.scramble()
-        self.__update()
+def create_puzzle(rows, cols):
+    return LightsOutPuzzle([[False for _ in range(cols)] for _ in range(rows)])
 
-    def __solve(self):
-        moves = self.__puzzle.find_solution()
-        self.__cur_sol = 0
+############################################################
+# Section 3: Linear Disk Movement
+############################################################
 
-        def highlight():
-            j, i = moves[self.__cur_sol]
-            self.__canvas.create_rectangle(
-                i * SQUARE_SIZE, j * SQUARE_SIZE, (i + 1) * SQUARE_SIZE, (j + 1) * SQUARE_SIZE,
-                fill='', outline='red', width=5)
-            self.after(MOVE_DELAY, move)
+class DiskMovement(object):
+    def __init__(self, disks, length, n):
+        self.disks = list(disks)
+        self.length = length
+        self.n = n
 
-        def move():
-            self.__puzzle.perform_move(*moves[self.__cur_sol])
-            self.__update()
-            self.__cur_sol += 1
-            if self.__cur_sol < len(moves):
-                self.after(MOVE_DELAY, highlight)
-            else:
-                self.__solve_finish()
+    def move(self, from_, to_):
+        tmp = list(self.disks)
+        disk_to_move = tmp[from_]
+        tmp[from_] = 0
+        tmp[to_] = disk_to_move
+        return DiskMovement(tmp,self.length,self.n)
 
-        self.__solve_lock()
-        highlight()
+    def successors(self):
+        i = 0
+        li = self.disks
+        while i < len(self.disks):
+            if li[i] != 0:
+                if i + 1 < self.length:
+                    if li[i+1] == 0:
+                        yield((i, i+1), self.move(i, i+1))
+                if i + 2 < self.length:
+                    if li[i+2] == 0 and li[i+1] !=0:
+                        yield((i, i+2), self.move(i, i+2))
+                if i-1 >= 0:
+                    if li[i-1] == 0:
+                        yield((i, i-1), self.move(i, i-1))
+                if i - 2 >= 0:
+                    if li[i-2] == 0 and li[i-1] !=0:
+                        yield((i, i-2), self.move(i, i-2))
+            i += 1
 
+def is_solved(dm):
+    i = dm.length - 1
+    while i >= dm.length - dm.n:
+        if dm.disks[i] != 1:
+            return False
+        i -= 1
+    return True
 
-class LinearDisksDialog(simpledialog.Dialog):
-    def body(self, parent):
-        length_label = tk.Label(parent, text='# of Cells (length)', justify=tk.LEFT)
-        length_label.grid(row=0, padx=5, sticky=tk.W)
-        self.__length_entry = tk.Entry(parent, name='length')
-        self.__length_entry.grid(row=1, padx=5, sticky=tk.EW)
+def solve_identical_disks(length, n):
+    initial_disks = [1 for i in range(n)]
+    for i in range(length - n):
+        initial_disks.append(0)
+    dm = DiskMovement(initial_disks, length, n)
+    moves = {}
+    parent = {}
+    explored_set = set()
+    solution = []
+    parent[dm] = dm
+    moves[dm] = ()
+    q = []
+    q.append(dm)
+    explored_set.add(tuple(dm.disks))
+    if is_solved(dm):
+        return moves[dm]
+    while len(q)!= 0:
+        diskInstance = q.pop(0)
+        if is_solved(diskInstance):
+            node = diskInstance
+            while(parent[node] != node):
+                solution.append(moves[node])
+                node = parent[node]
+            return list(reversed(solution))
+        for move, neighbor in diskInstance.successors():
+            if tuple(neighbor.disks) not in explored_set:
+                parent[neighbor] = diskInstance
+                moves[neighbor] = move
+                if is_solved(neighbor) is True:
+                    node = neighbor
+                    while(parent[node] != node):
+                        solution.append(moves[node])
+                        node = parent[node]
+                    return list(reversed(solution))
+                explored_set.add(tuple(neighbor.disks))
+                q.append(neighbor)
+    return None
 
-        n_label = tk.Label(parent, text='# of disks (N)', justify=tk.LEFT)
-        n_label.grid(row=2, padx=5, sticky=tk.W)
-        self.__n_entry = tk.Entry(parent, name='n')
-        self.__n_entry.grid(row=3, padx=5, sticky=tk.EW)
+def is_solved2(dm):
+        i = len(dm.disks) - 1
+        diskId = 1
+        while diskId <= dm.n:
+            if dm.disks[i] != diskId:
+                return False
+            i -= 1
+            diskId += 1
+        return True
 
-        self.__check = tk.BooleanVar()
-        tk.Checkbutton(parent, text='Distinct disks', variable=self.__check).grid(row=4)
+def solve_distinct_disks(length, n):
+    initial_disks = [1 for i in range(n)]
+    for i in range(length - n):
+        initial_disks.append(0)
+    dm = DiskMovement(initial_disks, length, n)
+    moves = {}
+    parent = {}
+    explored_set = set()
+    solution = []
+    parent[dm] = dm
+    moves[dm] = ()
+    q = []
+    q.append(dm)
+    explored_set.add(tuple(dm.disks))
+    if is_solved2(dm):
+        return moves[dm]
+    while len(q)!= 0:
+        diskInstance = q.pop(0)
+        if is_solved(diskInstance):
+            node = diskInstance
+            while(parent[node] != node):
+                solution.append(moves[node])
+                node = parent[node]
+            return list(reversed(solution))
+        for move, neighbor in diskInstance.successors():
+            if tuple(neighbor.disks) not in explored_set:
+                parent[neighbor] = diskInstance
+                moves[neighbor] = move
+                if is_solved(neighbor) is True:
+                    node = neighbor
+                    while(parent[node] != node):
+                        solution.append(moves[node])
+                        node = parent[node]
+                    return list(reversed(solution))
+                explored_set.add(tuple(neighbor.disks))
+                q.append(neighbor)
+    return None
+#print(solve_identical_disks(5, 3))
+#print(solve_distinct_disks(5, 2))
 
-        return self.__length_entry
+############################################################
+# Section 4: Feedback
+############################################################
 
-    def validate(self):
-        try:
-            length = self.getint(self.__length_entry.get())
-            n = self.getint(self.__n_entry.get())
-        except ValueError:
-            messagebox.showwarning('Illegal value', 'Not an integer.\nPlease try again', parent=self)
-            return 0
-        if length <= 0 or n <= 0:
-            messagebox.showwarning('Illegal value', 'Not a positive integer.\nPlease try again', parent=self)
-            return 0
-        if length < n:
-            messagebox.showwarning('Illegal value', 'Length is less than N.\nPlease try again', parent=self)
-            return 0
-        self.result = (length, n, self.__check.get())
-        return 1
+feedback_question_1 = """
+1day
+"""
 
+feedback_question_2 = """
+Question 3
+"""
 
-MARGIN = 10
-
-
-class LinearDisks(tk.Frame):
-    def __init__(self, parent, length, n, distinct):
-        super().__init__(parent)
-        self.__length = length
-        self.__solutions = (solve_distinct_disks if distinct else solve_identical_disks)(length, n)
-        self.__cur_sol = 0
-        self.__canvas = tk.Canvas(self)
-        self.__buttons = tk.Frame(self)
-        self.__canvas.config(width=length * SQUARE_SIZE, height=SQUARE_SIZE)
-        self.__canvas.pack()
-        self.__disks = {}
-        self.__arrow = None
-
-        for i in range(length):
-            self.__canvas.create_rectangle(i * SQUARE_SIZE, 0, (i + 1) * SQUARE_SIZE, SQUARE_SIZE, fill='white')
-
-        for i in range(n):
-            self.__disks[i] = (
-                self.__canvas.create_oval(
-                    i * SQUARE_SIZE + MARGIN, MARGIN, (i + 1) * SQUARE_SIZE - MARGIN, SQUARE_SIZE - MARGIN,
-                    fill='black'),
-                self.__canvas.create_text(
-                    (i + .5) * SQUARE_SIZE, SQUARE_SIZE / 2, text=i, font=(None, MARGIN * 3),
-                    fill='white' if distinct else ''))
-
-        self.__next_btn = tk.Button(self.__buttons, text='Next move', command=self.__next,
-                                    state=tk.NORMAL if self.__solutions else tk.DISABLED)
-        self.__next_btn.pack()
-        self.__buttons.pack(side=tk.BOTTOM)
-
-    def __next(self):
-        fr, to = self.__solutions[self.__cur_sol]
-        if fr not in self.__disks:
-            messagebox.showerror('Illegal move',
-                                 'Cannot move a disk from position %d to %d\nCell is empty' % (fr, to), parent=self)
-            self.__next_btn.config(state=tk.DISABLED)
-            return
-        if to in self.__disks:
-            messagebox.showerror('Illegal move',
-                                 'Cannot move a disk from position %d to %d\nCell is not empty' % (fr, to), parent=self)
-            self.__next_btn.config(state=tk.DISABLED)
-            return
-        if to < 0 or to >= self.__length:
-            messagebox.showerror('Illegal move',
-                                 'Cannot move the disk to %d\nCell is out of bound' % to, parent=self)
-            self.__next_btn.config(state=tk.DISABLED)
-            return
-        disk, label = self.__disks[to] = self.__disks.pop(fr)
-        self.__canvas.move(disk, (to - fr) * SQUARE_SIZE, 0)
-        self.__canvas.move(label, (to - fr) * SQUARE_SIZE, 0)
-        if self.__arrow:
-            self.__canvas.delete(self.__arrow)
-
-        self.__arrow = self.__canvas.create_line(
-            (fr + .5) * SQUARE_SIZE, SQUARE_SIZE / 2, (to + .5) * SQUARE_SIZE, SQUARE_SIZE / 2,
-            arrow=tk.LAST, arrowshape=(MARGIN, MARGIN * 2, MARGIN), fill='orange', width=MARGIN / 2)
-
-        self.__cur_sol += 1
-        if self.__cur_sol >= len(self.__solutions):
-            self.__next_btn.config(state=tk.DISABLED)
-
-
-class GUI(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title('Homework 2 GUI')
-        self.minsize(300, 200)
-        self.resizable(height=False, width=False)
-        self.__menu = tk.Menu(self)
-        second_menu = tk.Menu(self.__menu)
-        second_menu.add_command(label='N-Queens', command=self.n_queens)
-        second_menu.add_command(label='Lights Out', command=self.lights_out)
-        second_menu.add_command(label='Linear Disks', command=self.linear_disks)
-        self.__menu.add_cascade(label='New', menu=second_menu)
-        self.config(menu=self.__menu)
-        self.__cur = None
-
-    def draw_rect(self, i, j, size, color):
-        return self.__canvas.create_rectangle(
-            i * size, j * size, (i + 1) * size, (j + 1) * size, fill=color, outline='')
-
-    def n_queens(self):
-        n = simpledialog.askinteger('Input number', 'N', parent=self, minvalue=1, initialvalue=8)
-        if not n:
-            return
-        if self.__cur:
-            self.__cur.destroy()
-        self.__cur = NQueens(self, n)
-        self.__cur.pack(expand=True)
-
-    def lights_out(self):
-        result = LightsOutDialog(self, 'Input numbers').result
-        if not result:
-            return
-        if self.__cur:
-            self.__cur.destroy()
-        self.__cur = LightsOut(self, *result)
-        self.__cur.pack(expand=True)
-
-    def linear_disks(self):
-        result = LinearDisksDialog(self, 'Input options').result
-        if not result:
-            return
-        if self.__cur:
-            self.__cur.destroy()
-        self.__cur = LinearDisks(self, *result)
-        self.__cur.pack(expand=True)
-
-
-if __name__ == '__main__':
-    GUI().mainloop()
+feedback_question_3 = """
+order of questions, after Q2, Q3 has clues to find solutions
+"""
