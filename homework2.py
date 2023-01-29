@@ -206,14 +206,15 @@ def solve_identical_disks(length, n):
     return None
 
 def is_solved2(dm):
-        i = len(dm.disks) - 1
-        diskId = 1
-        while diskId <= dm.n:
-            if dm.disks[i] != diskId:
-                return False
-            i -= 1
-            diskId += 1
-        return True
+    i = len(dm.disks) - 1
+    diskId = 1
+    while diskId <= dm.n:
+        if dm.disks[i] != diskId:
+            return False
+        i -= 1
+        diskId += 1
+    return True
+
 
 def solve_distinct_disks(length, n):
     initial_disks = [1 for i in range(n)]
@@ -231,11 +232,11 @@ def solve_distinct_disks(length, n):
     explored_set.add(tuple(dm.disks))
     if is_solved2(dm):
         return moves[dm]
-    while len(q)!= 0:
+    while q:
         diskInstance = q.pop(0)
         if is_solved(diskInstance):
             node = diskInstance
-            while(parent[node] != node):
+            while (parent[node] != node):
                 solution.append(moves[node])
                 node = parent[node]
             return list(reversed(solution))
@@ -245,7 +246,7 @@ def solve_distinct_disks(length, n):
                 moves[neighbor] = move
                 if is_solved(neighbor) is True:
                     node = neighbor
-                    while(parent[node] != node):
+                    while (parent[node] != node):
                         solution.append(moves[node])
                         node = parent[node]
                     return list(reversed(solution))
@@ -256,6 +257,7 @@ def solve_distinct_disks(length, n):
 ############################################################
 # Section 4: Feedback
 ############################################################
+
 
 feedback_question_1 = """
 1day
