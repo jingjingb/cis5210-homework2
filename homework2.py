@@ -19,7 +19,7 @@ def num_placements_all(n):
 
 
 def num_placements_one_per_row(n):
-    return math.factorial(n)
+    return n**n
 
 
 def n_queens_valid(board):
