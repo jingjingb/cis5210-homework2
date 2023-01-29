@@ -35,27 +35,17 @@ def n_queens_valid(board):
         cache[row] = col
     return True
 
-#print(n_queens_valid([1]))
-
 def n_queens_solutions(n):
     solutions = []
     def DFS(path, solutions):
-        #print("existing path: ", path)
         for i in range(n):
             if i not in path and n_queens_valid(list(path+[i])):
-                #print("next step is: ",i)
                 if len(path) == n-1:
                     solutions.append(list(path + [i]))
-                    #print("solution: ",list(path + [i]))
                 else:
                     DFS(path+[i], solutions)
     DFS([], solutions)
     return solutions
-#print(len(n_queens_solutions(8)))
-        
-
-
-
 
 ############################################################
 # Section 2: Lights Out
