@@ -73,8 +73,8 @@ class LightsOutPuzzle(object):
                row + delta_row < len(self.board):
                 if col + delta_col >= 0 and \
                    col + delta_col < len(self.board[0]):
-                    self.board[row + delta_row][col + delta_col] \
-                    = not self.board[row + delta_row][col + delta_col]
+                    self.board[row + delta_row][col + delta_col] = \
+                    not self.board[row + delta_row][col + delta_col]
 
     def scramble(self):
         import random
