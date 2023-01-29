@@ -74,7 +74,7 @@ class LightsOutPuzzle(object):
                 if col + delta_col >= 0 and \
                    col + delta_col < len(self.board[0]):
                     self.board[row + delta_row][col + delta_col] = \
-                    not self.board[row + delta_row][col + delta_col]
+                        not self.board[row + delta_row][col + delta_col]
 
     def scramble(self):
         import random
@@ -113,8 +113,8 @@ class LightsOutPuzzle(object):
                     if next.is_solved():
                         return list(moves + [move])
                     else:
-                        visited_set.append(tuple(tuple(x) \
-                        for x in next.get_board()))
+                        visited_set.append(tuple(tuple(x)
+                            for x in next.get_board()))
                         q.append((list(moves + [move]), next))
         return None
 
@@ -149,17 +149,17 @@ class DiskMovement(object):
                     if li[i + 1] == 0:
                         yield ((i, i + 1), self.move(i, i + 1))
                 if i + 2 < self.length:
-                    if li[i + 2] == 0 and li[i + 1] !=0:
+                    if li[i + 2] == 0 and li[i + 1] != 0:
                         yield ((i, i + 2), self.move(i, i + 2))
                 if i - 1 >= 0:
                     if li[i - 1] == 0:
                         yield ((i, i - 1), self.move(i, i - 1))
                 if i - 2 >= 0:
-                    if li[i - 2] == 0 and li[i - 1] !=0:
+                    if li[i - 2] == 0 and li[i - 1] != 0:
                         yield ((i, i - 2), self.move(i, i - 2))
             i += 1
 
-            
+
 def is_solved(dm):
     i = dm.length - 1
     while i >= dm.length - dm.n:
@@ -185,11 +185,11 @@ def solve_identical_disks(length, n):
     explored_set.add(tuple(dm.disks))
     if is_solved(dm):
         return moves[dm]
-    while len(q)!= 0:
+    while len(q) != 0:
         diskInstance = q.pop(0)
         if is_solved(diskInstance):
             node = diskInstance
-            while(parent[node] != node):
+            while (parent[node] != node):
                 solution.append(moves[node])
                 node = parent[node]
             return list(reversed(solution))
@@ -199,13 +199,14 @@ def solve_identical_disks(length, n):
                 moves[neighbor] = move
                 if is_solved(neighbor) is True:
                     node = neighbor
-                    while(parent[node] != node):
+                    while (parent[node] != node):
                         solution.append(moves[node])
                         node = parent[node]
                     return list(reversed(solution))
                 explored_set.add(tuple(neighbor.disks))
                 q.append(neighbor)
     return None
+
 
 def is_solved2(dm):
     i = len(dm.disks) - 1
