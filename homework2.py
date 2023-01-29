@@ -24,14 +24,10 @@ def n_queens_valid(board):
     #check same column.
     if len(set(board)) < len(board):
         return False
-    # check if same row, impossible.
     # check if diag.
     cache = {}
     for row in range(len(board)):
         col = board[row]
-        #print("cache is ",cache)
-        #print("curr row is ", row)
-        #print("curr col is ", col)
         # check if conflicts with existing queens.
         for row_, col_ in cache.items():
             if abs(row - row_) == abs(col - col_):
