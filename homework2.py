@@ -69,9 +69,12 @@ class LightsOutPuzzle(object):
         # perform the four neighbors
         for delta_row, delta_col in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             # check boundary conditions
-            if row + delta_row >= 0 and row + delta_row < len(self.board):
-                if col + delta_col >= 0 and col + delta_col < len(self.board[0]):
-                    self.board[row + delta_row][col + delta_col] = not self.board[row + delta_row][col + delta_col]
+            if row + delta_row >= 0 and \
+            row + delta_row < len(self.board):
+                if col + delta_col >= 0 and \
+                col + delta_col < len(self.board[0]):
+                    self.board[row + delta_row][col + delta_col] \
+                    = not self.board[row + delta_row][col + delta_col]
 
     def scramble(self):
         import random
