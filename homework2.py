@@ -114,7 +114,7 @@ class LightsOutPuzzle(object):
                         return list(moves + [move])
                     else:
                         visited_set.append(tuple(tuple(x)
-                            for x in next.get_board()))
+                                           for x in next.get_board()))
                         q.append((list(moves + [move]), next))
         return None
 
