@@ -23,22 +23,24 @@ def num_placements_one_per_row(n):
 
 
 def n_queens_valid(board):
-    #check same column.
+    # Check same column.
     if len(set(board)) < len(board):
         return False
-    # check if diag.
+    # Check if diag.
     cache = {}
     for row in range(len(board)):
         col = board[row]
-        # check if conflicts with existing queens.
+        # Check if conflicts with existing queens.
         for row_, col_ in cache.items():
             if abs(row - row_) == abs(col - col_):
-                return False        
+                return False
         cache[row] = col
     return True
 
+
 def n_queens_solutions(n):
     solutions = []
+
     def DFS(path, solutions):
         for i in range(n):
             if i not in path and n_queens_valid(list(path+[i])):
@@ -48,6 +50,7 @@ def n_queens_solutions(n):
                     DFS(path+[i], solutions)
     DFS([], solutions)
     return solutions
+
 
 ############################################################
 # Section 2: Lights Out
