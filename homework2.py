@@ -60,7 +60,6 @@ class LightsOutPuzzle(object):
         return self.board
 
     def perform_move(self, row, col):
-        #print(self.board)
         self.board[row][col] = not self.board[row][col] 
         # perform the four neighbors
         for delta_row, delta_col in [(1,0),(-1,0),(0,1),(0,-1)]:
@@ -84,40 +83,29 @@ class LightsOutPuzzle(object):
         return True
 
     def copy(self):
-        return copy.deepcopy(self)#LightsOutPuzzle([[self.board[row][col] for col in range(len(self.board[0]))] for row in range(len(self.board))])
+        return copy.deepcopy(self)
 
     def successors(self):
         successors = {}
         for row in range(len(self.board)):
             for col in range(len(self.board[0])):
                 successor = self.copy()
-                #print("row", row, "col", col)
-                #print("successor before move:", successor.get_board())
                 successor.perform_move(row,col)
-                #print("successor after move:", successor.get_board())
                 yield ((row,col),successor)
 
     def find_solution(self):
-        #print("find sol", self.get_board())
         q = [([],self)]
         visited_set = [tuple(tuple(x) for x in self.get_board())]
         while(q):
             moves, curr = q.pop(0)
-            #print("moves:", moves)
-            #print("curr:", curr.get_board())
             for move, next in curr.successors():
                 # visit next
                 if tuple(tuple(x) for x in next.get_board()) not in visited_set:
-                    #print("next move:", move)
-                    #print("next successor:", next.get_board())
                     if next.is_solved():
-                        #print("solved:", moves + [move])
                         return list(moves + [move])
                     else:
                         visited_set.append(tuple(tuple(x) for x in next.get_board()))
-                        #print("add next successor to q:", next.get_board())
                         q.append((list(moves + [move]), next))
-                        #print("q is" ,q)
         return None
 
 def create_puzzle(rows, cols):
@@ -252,8 +240,6 @@ def solve_distinct_disks(length, n):
                 explored_set.add(tuple(neighbor.disks))
                 q.append(neighbor)
     return None
-#print(solve_identical_disks(5, 3))
-#print(solve_distinct_disks(5, 2))
 
 ############################################################
 # Section 4: Feedback
