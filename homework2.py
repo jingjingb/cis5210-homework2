@@ -17,8 +17,10 @@ student_name = "Jingjing Bai"
 def num_placements_all(n):
     return math.factorial(n*n)/math.factorial(n)/math.factorial(n*n-n)
 
+
 def num_placements_one_per_row(n):
     return math.factorial(n)
+
 
 def n_queens_valid(board):
     #check same column.
