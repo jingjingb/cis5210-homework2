@@ -108,11 +108,13 @@ class LightsOutPuzzle(object):
             moves, curr = q.pop(0)
             for move, next in curr.successors():
                 # visit next
-                if tuple(tuple(x) for x in next.get_board()) not in visited_set:
+                if tuple(tuple(x) for x in next.get_board()) \
+                   not in visited_set:
                     if next.is_solved():
                         return list(moves + [move])
                     else:
-                        visited_set.append(tuple(tuple(x) for x in next.get_board()))
+                        visited_set.append(tuple(tuple(x) \
+                        for x in next.get_board()))
                         q.append((list(moves + [move]), next))
         return None
 
@@ -123,6 +125,7 @@ def create_puzzle(rows, cols):
 ############################################################
 # Section 3: Linear Disk Movement
 ############################################################
+
 
 class DiskMovement(object):
     def __init__(self, disks, length, n):
